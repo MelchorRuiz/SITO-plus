@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SITO+</title>
+
+    <script type="module">
+        const div1 = document.getElementById('response-1');
+        const div2 = document.getElementById('response-2');
+
+        async function fetchData() {
+            try {
+                const response1 = await fetch('http://localhost:8001/');
+                const data1 = await response1.json();
+                div1.textContent = `Respuesta del servicio 1: ${JSON.stringify(data1)}`;
+            } catch (error) {
+                div1.textContent = `Error al conectar con el servicio 1: ${error.message}`;
+            }
+
+            try {
+                const response2 = await fetch('http://localhost:8002/');
+                const data2 = await response2.json();
+                div2.textContent = `Respuesta del servicio 2: ${JSON.stringify(data2)}`;
+            } catch (error) {
+                div2.textContent = `Error al conectar con el servicio 2: ${error.message}`;
+            }
+        }
+
+        fetchData();
+    </script>
+</head>
+<body>
+    <h1>Bienvenido a SITO+</h1>
+    <div id="response-1"></div>
+    <div id="response-2"></div>
+</body>
+</html>
