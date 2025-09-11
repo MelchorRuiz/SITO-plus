@@ -33,7 +33,7 @@ services/
 ├── students/
 ├── teachers/
 ├── school-services/
-├── human resources/
+├── human-resources/
 docker-compose.yml
 README.md
 ```
