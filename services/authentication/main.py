@@ -79,16 +79,14 @@ class UserCreate(BaseModel):
     role: Role
 
 
+class RegisterResponse(BaseModel):
+    message: str
+
+
 class UserLogin(BaseModel):
     username: str
     password: str
 
-
-class RegisterResponse(BaseModel):
-    message: str
-
-class ChangePasswordResponse(BaseModel):
-    message: str
 
 class LoginResponse(BaseModel):
     message: str
@@ -99,6 +97,10 @@ class LoginResponse(BaseModel):
 class ChangePasswordRequest(BaseModel):
     current_password: str
     new_password: str
+
+
+class ChangePasswordResponse(BaseModel):
+    message: str
 
 
 def create_access_token(data: dict):
@@ -155,9 +157,6 @@ def change_password(request: ChangePasswordRequest, token: str = Depends(securit
     except jwt.InvalidTokenError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-    if token_payload.get("sub") != request.username:
-        raise HTTPException(status_code=403, detail="You can only change your own password")
-
     with get_db_connection() as conn:
         cursor = conn.cursor()
         cursor.execute("SELECT hashed_password FROM users WHERE username = ?", (token_payload.get("sub"),))
@@ -167,8 +166,6 @@ def change_password(request: ChangePasswordRequest, token: str = Depends(securit
 
         hashed_password = bcrypt.hash(request.new_password)
         cursor.execute("UPDATE users SET hashed_password = ? WHERE username = ?", (hashed_password, token_payload.get("sub")))
-        if cursor.rowcount == 0:
-            raise HTTPException(status_code=404, detail="User not found")
         conn.commit()
     return ChangePasswordResponse(message="Password updated successfully")
 
