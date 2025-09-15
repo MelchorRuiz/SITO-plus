@@ -205,8 +205,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     showNotification('Inicio de sesión exitoso.', 'success');
-                    sessionStorage.setItem('username', username);
-                    sessionStorage.setItem('password', password);
+                    sessionStorage.setItem('token', data.token);
                     window.location.href = `${data.role}.html`;
                 } else {
                     const error = await response.json();
