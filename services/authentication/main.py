@@ -102,6 +102,17 @@ class ChangePasswordRequest(BaseModel):
 class ChangePasswordResponse(BaseModel):
     message: str
 
+    
+class TokenPayload(BaseModel):
+    sub: str
+    role: str
+    exp: int
+
+
+class ValidateTokenResponse(BaseModel):
+    valid: bool
+    data: TokenPayload
+
 
 def create_access_token(data: dict):
     to_encode = data.copy()
@@ -185,11 +196,11 @@ def login(user: UserLogin):
     return LoginResponse(message="Login successful", role=db_user["role"], token=access_token)
 
 
-@app.post("/validate-token")
+@app.post("/validate-token", response_model=ValidateTokenResponse)
 def validate_token(token: str = Depends(security)):
     try:
         payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        return {"valid": True, "data": payload}
+        return ValidateTokenResponse(valid=True, data=TokenPayload(**payload))
     except jwt.ExpiredSignatureError:
         raise HTTPException(status_code=401, detail="Token has expired")
     except jwt.InvalidTokenError:
