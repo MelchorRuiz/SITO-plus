@@ -10,6 +10,7 @@ import com.example.profesores.modelo.ProfesorDTO;
 import com.example.profesores.server.AlumnoService;
 import com.example.profesores.server.ProfesorService;
 import jakarta.websocket.server.PathParam;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,6 +51,10 @@ public class ProfesorController {
     @GetMapping(value = "alumnos/{idAlumno}")
     public Alumno calificar(@PathVariable("idAlumno") int idAluno){
         return serverA.buscarAlumno(idAluno);
+    }
+    @GetMapping(value = "profesores",produces = MediaType.APPLICATION_JSON_VALUE)
+    public List<Profesor> mostrarProfesor(){
+        return server.buscarProfesores();
     }
     
     @PutMapping(value = "profesores/calificar" ,consumes = MediaType.APPLICATION_JSON_VALUE)

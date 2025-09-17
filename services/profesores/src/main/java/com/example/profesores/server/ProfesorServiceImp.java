@@ -8,6 +8,7 @@ import com.example.profesores.modelo.Alumno;
 import com.example.profesores.modelo.Profesor;
 import com.example.profesores.modelo.ProfesorDTO;
 import com.example.profesores.repository.ProfesoresInterface;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +39,11 @@ public class ProfesorServiceImp implements ProfesorService{
     @Override
     public boolean actualizarCorreo(ProfesorDTO profesorDTO) {
         return profesorI.actualizarCorreo(profesorDTO);
+    }
+
+    @Override
+    public List<Profesor> buscarProfesores() {
+        return profesorI.buscarProfesores();
     }
     
 }

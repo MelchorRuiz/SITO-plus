@@ -7,6 +7,7 @@ package com.example.profesores.repository;
 import com.example.profesores.modelo.Alumno;
 import com.example.profesores.modelo.Profesor;
 import com.example.profesores.modelo.ProfesorDTO;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -58,6 +59,11 @@ public class ProfesoresImp implements  ProfesoresInterface{
     public boolean actualizarCorreo(ProfesorDTO profesorDTO) {
         profesoresJpa.actualizarCorreoYContrasena(profesorDTO.getNumeroEmpleado(), profesorDTO.getCorreo(), profesorDTO.getContrasena());
         return true;
+    }
+    
+   @Override
+    public List<Profesor> buscarProfesores() {
+        return profesoresJpa.findAll();
     }
     
 }

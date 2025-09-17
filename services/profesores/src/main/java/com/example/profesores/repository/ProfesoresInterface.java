@@ -7,6 +7,7 @@ package com.example.profesores.repository;
 import com.example.profesores.modelo.Alumno;
 import com.example.profesores.modelo.Profesor;
 import com.example.profesores.modelo.ProfesorDTO;
+import java.util.List;
 
 /**
  *
@@ -17,5 +18,5 @@ public interface ProfesoresInterface {
     Profesor buscarProfesor(int numeroEmpleado);
     boolean calificarAlumno(Alumno alumno);
     boolean actualizarCorreo(ProfesorDTO profesorDTO);
-    
+    List<Profesor> buscarProfesores();
 }
