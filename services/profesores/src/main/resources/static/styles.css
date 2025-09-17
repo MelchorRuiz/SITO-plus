@@ -1,0 +1,66 @@
+/*
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/CascadeStyleSheet.css to edit this template
+*/
+/* 
+    Created on : 16 sep 2025, 6:07:49 p.m.
+    Author     : LENOVO
+*/
+:root {
+    --pastel-purple: #c8b6ff;
+    --lavender: #b8c0ff;
+    --light-pink: #ffc6ff;
+    --soft-white: #f7f7f7;
+    --deep-purple: #8e44ad;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--soft-white);
+    color: var(--deep-purple);
+    padding: 2rem;
+    text-align: center;
+}
+
+h1 {
+    background: linear-gradient(to right, var(--pastel-purple), var(--lavender));
+    padding: 1rem;
+    border-radius: 10px;
+    color: #fff;
+}
+
+.card {
+    background-color: var(--light-pink);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1rem auto;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.card input {
+    display: block;
+    margin: 0.5rem auto;
+    padding: 0.5rem;
+    width: 80%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.card button {
+    background-color: var(--pastel-purple);
+    color: #fff;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 0.5rem;
+    transition: background-color 0.3s ease;
+}
+
+.card button:hover {
+    background-color: var(--deep-purple);
+}
+
+
