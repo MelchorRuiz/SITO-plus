@@ -16,10 +16,10 @@ public class ConexionMySQL {
     Connection conn;
     
     public Connection open(){
-        String user = "root";
-        String password = "root";
-        
-        String url = "jdbc:mysql://localhost:3306/servicios_escolares?useSSL=false&useUnicode=true&characterEncoding=utf-8";
+        String user = "sito_user";
+        String password = "sito_password";
+
+        String url = "jdbc:mysql://school_services_db:3306/school_services_db?allowPublicKeyRetrieval=true&useSSL=false&useUnicode=true&characterEncoding=utf-8";
         
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");

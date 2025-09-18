@@ -6,9 +6,6 @@ services:
     container_name: frontend_service
     ports:
       - "8000:80"
-    depends_on:
-      - authentication
-      - students
   authentication:
     build:
       context: ./services/authentication
@@ -25,6 +22,30 @@ services:
     container_name: students_service
     ports:
       - "8002:80"
+    networks:
+      - backend_network
+  school_services:
+    build:
+      context: ./services/servicios_escolares
+      dockerfile: Dockerfile
+    container_name: school_services
+    ports:
+      - "8003:8080"
+    networks:
+      - backend_network
+    depends_on:
+      - school_services_db
+  school_services_db:
+    image: mysql:9.4.0
+    container_name: school_services_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: school_services_db
+      MYSQL_USER: sito_user
+      MYSQL_PASSWORD: sito_password
+    volumes:
+      - "./services/servicios_escolares/init.sql:/docker-entrypoint-initdb.d/init.sql"
+      - "/tmp/mysql-data:/var/lib/mysql"
     networks:
       - backend_network
 

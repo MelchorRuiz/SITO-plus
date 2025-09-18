@@ -1,10 +1,12 @@
 // Updated controlador.js (await loadData in assign and remove)
 
+const URL = "http://localhost:8003/servicios-escolares/api";
+
 async function assignAlumnoToGroup() {
   const matricula = parseInt(document.getElementById('asignarAlumnoSelect').value);
   if (matricula) {
     try {
-      const res = await fetch(`http://localhost:8080/Servicios_escolares/api/alumno/assignToGroup/${matricula}/${currentGrupoId}`, { method: 'PUT' });
+      const res = await fetch(`${URL}/alumno/assignToGroup/${matricula}/${currentGrupoId}`, { method: 'PUT' });
       if (res.ok) {
         await loadData();
         bootstrap.Modal.getInstance(document.getElementById('modalAsignarAlumno')).hide();
@@ -19,7 +21,7 @@ async function assignAlumnoToGroup() {
 async function removeAlumnoFromGroup(matricula) {
   if (confirm("¿Remover alumno del grupo?")) {
     try {
-      const res = await fetch(`http://localhost:8080/Servicios_escolares/api/alumno/removeFromGroup/${matricula}`, { method: 'PUT' });
+      const res = await fetch(`${URL}/alumno/removeFromGroup/${matricula}`, { method: 'PUT' });
       if (res.ok) {
         await loadData();
         viewGrupoDetails(currentGrupoId); // Refresh details
@@ -41,13 +43,13 @@ let currentGrupoId = null; // For modals
 
 async function loadData() {
   try {
-    const resCarreras = await fetch("http://localhost:8080/Servicios_escolares/api/carrera/getAllCarreras");
+    const resCarreras = await fetch(`${URL}/carrera/getAllCarreras`);
     carreras = await resCarreras.json();
 
-    const resGrupos = await fetch("http://localhost:8080/Servicios_escolares/api/grupo/getAllGrupos");
+    const resGrupos = await fetch(`${URL}/grupo/getAllGrupos`);
     grupos = await resGrupos.json();
 
-    const resAlumnos = await fetch("http://localhost:8080/Servicios_escolares/api/alumno/getAllAlumnos");
+    const resAlumnos = await fetch(`${URL}/alumno/getAllAlumnos`);
     alumnos = await resAlumnos.json();
 
     populateSelects();
@@ -145,7 +147,7 @@ async function saveAlumno() {
   };
 
   try {
-    const res = await fetch("http://localhost:8080/Servicios_escolares/api/alumno/addAlumno", {
+    const res = await fetch(`${URL}/alumno/addAlumno`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(alumno)
@@ -190,7 +192,7 @@ async function updateAlumno() {
   };
 
   try {
-    const res = await fetch("http://localhost:8080/Servicios_escolares/api/alumno/updateAlumno", {
+    const res = await fetch(`${URL}/alumno/updateAlumno`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(alumno)
@@ -207,7 +209,7 @@ async function updateAlumno() {
 async function deleteAlumno(matricula) {
   if (confirm("¿Eliminar alumno?")) {
     try {
-      const res = await fetch(`http://localhost:8080/Servicios_escolares/api/alumno/deleteAlumno/${matricula}`, { method: 'DELETE' });
+      const res = await fetch(`${URL}/alumno/deleteAlumno/${matricula}`, { method: 'DELETE' });
       if (res.ok) {
         loadData();
       }
@@ -228,7 +230,7 @@ async function saveGrupo() {
   };
 
   try {
-    const res = await fetch("http://localhost:8080/Servicios_escolares/api/grupo/addGrupo", {
+    const res = await fetch(`${URL}/grupo/addGrupo`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(grupo)
@@ -264,7 +266,7 @@ async function updateGrupo() {
   };
 
   try {
-    const res = await fetch("http://localhost:8080/Servicios_escolares/api/grupo/updateGrupo", {
+    const res = await fetch(`${URL}/grupo/updateGrupo`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(grupo)
@@ -281,7 +283,7 @@ async function updateGrupo() {
 async function deleteGrupo(id) {
   if (confirm("¿Eliminar grupo?")) {
     try {
-      const res = await fetch(`http://localhost:8080/Servicios_escolares/api/grupo/deleteGrupo/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${URL}/grupo/deleteGrupo/${id}`, { method: 'DELETE' });
       if (res.ok) {
         loadData();
       }
@@ -332,7 +334,7 @@ async function assignAlumnoToGroup() {
   const matricula = parseInt(document.getElementById('asignarAlumnoSelect').value);
   if (matricula) {
     try {
-      const res = await fetch(`http://localhost:8080/Servicios_escolares/api/alumno/assignToGroup/${matricula}/${currentGrupoId}`, { method: 'PUT' });
+      const res = await fetch(`${URL}/alumno/assignToGroup/${matricula}/${currentGrupoId}`, { method: 'PUT' });
       if (res.ok) {
         loadData();
         bootstrap.Modal.getInstance(document.getElementById('modalAsignarAlumno')).hide();
@@ -347,7 +349,7 @@ async function assignAlumnoToGroup() {
 async function removeAlumnoFromGroup(matricula) {
   if (confirm("¿Remover alumno del grupo?")) {
     try {
-      const res = await fetch(`http://localhost:8080/Servicios_escolares/api/alumno/removeFromGroup/${matricula}`, { method: 'PUT' });
+      const res = await fetch(`${URL}/alumno/removeFromGroup/${matricula}`, { method: 'PUT' });
       if (res.ok) {
         loadData();
         viewGrupoDetails(currentGrupoId); // Refresh details

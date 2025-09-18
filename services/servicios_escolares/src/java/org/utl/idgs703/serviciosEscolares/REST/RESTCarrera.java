@@ -21,7 +21,7 @@ import org.utl.idgs703.serviciosEscolares.control.ControllerCarrera;
 @Path("carrera")
 public class RESTCarrera {
     @Path("getAllCarreras")
-    @Produces(MediaType. APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     @GET
     public Response getAllCarreras() {
         String out = null;
