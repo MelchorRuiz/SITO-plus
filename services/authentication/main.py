@@ -102,7 +102,11 @@ class ChangePasswordRequest(BaseModel):
 class ChangePasswordResponse(BaseModel):
     message: str
 
-    
+
+class DeleteUserResponse(BaseModel):
+    message: str
+
+
 class TokenPayload(BaseModel):
     sub: str
     role: str
@@ -132,6 +136,18 @@ def validate_registration_permissions(token_payload: dict, role_to_register: Rol
             raise HTTPException(status_code=403, detail="School Services can only register students")
     else:
         raise HTTPException(status_code=403, detail="You do not have permission to register users")
+
+
+def validate_deletion_permissions(token_payload: dict, role_to_delete: str):
+    user_role = token_payload.get("role")
+    if user_role == Role.HUMAN_RESOURCES:
+        if role_to_delete not in [Role.HUMAN_RESOURCES, Role.TEACHER, Role.SCHOOL_SERVICES]:
+            raise HTTPException(status_code=403, detail="Human Resources can only delete HR, teachers, and school services personnel")
+    elif user_role == Role.SCHOOL_SERVICES:
+        if role_to_delete != Role.STUDENT:
+            raise HTTPException(status_code=403, detail="School Services can only delete students")
+    else:
+        raise HTTPException(status_code=403, detail="You do not have permission to delete users")
 
 
 @app.post("/register", response_model=RegisterResponse)
@@ -179,6 +195,33 @@ def change_password(request: ChangePasswordRequest, token: str = Depends(securit
         cursor.execute("UPDATE users SET hashed_password = ? WHERE username = ?", (hashed_password, token_payload.get("sub")))
         conn.commit()
     return ChangePasswordResponse(message="Password updated successfully")
+
+
+@app.delete("/delete-user/{username}", response_model=DeleteUserResponse)
+def delete_user(username: str, token: str = Depends(security)):
+    try:
+        token_payload = jwt.decode(token.credentials, SECRET_KEY, algorithms=[ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(status_code=401, detail="Token has expired")
+    except jwt.InvalidTokenError:
+        raise HTTPException(status_code=401, detail="Invalid token")
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT role FROM users WHERE username = ?", (username,))
+        db_user = cursor.fetchone()
+        if not db_user:
+            raise HTTPException(status_code=404, detail="User not found")
+        role_to_delete = db_user["role"]
+
+    validate_deletion_permissions(token_payload, role_to_delete)
+
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("DELETE FROM users WHERE username = ?", (username,))
+        conn.commit()
+
+    return DeleteUserResponse(message="User deleted successfully")
 
 
 @app.post("/login", response_model=LoginResponse)
