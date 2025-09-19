@@ -11,6 +11,7 @@ import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.FormParam;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -22,6 +23,7 @@ import java.sql.SQLException;
 import java.util.List;
 import org.utl.idgs703.serviciosEscolares.model.Grupo;
 import org.utl.idgs703.serviciosEscolares.control.ControllerGrupo;
+import org.utl.idgs703.serviciosEscolares.util.AuthenticationUtil;
 
 /**
  *
@@ -32,7 +34,13 @@ public class RESTGrupo {
     @Path("getAllGrupos")
     @Produces(MediaType.APPLICATION_JSON)
     @GET
-    public Response getAllGrupos() {
+    public Response getAllGrupos(@HeaderParam("Authorization") String authHeader) {
+        // Validate bearer token using utility class
+        Response authResponse = AuthenticationUtil.validateTokenAndRoleOrReturnError(authHeader, "school-services");
+        if (authResponse != null) {
+            return authResponse;
+        }
+        
         String out = null;
         List<Grupo> grupos = null;
         ControllerGrupo cg = new ControllerGrupo();
@@ -50,7 +58,13 @@ public class RESTGrupo {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @POST
-    public Response addGrupo(String jsonGrupo) {
+    public Response addGrupo(@HeaderParam("Authorization") String authHeader, String jsonGrupo) {
+        // Validate bearer token using utility class
+        Response authResponse = AuthenticationUtil.validateTokenAndRoleOrReturnError(authHeader, "school-services");
+        if (authResponse != null) {
+            return authResponse;
+        }
+        
         String out = null;
         Gson gson = new Gson();
         Grupo grupo = gson.fromJson(jsonGrupo, Grupo.class);
@@ -69,7 +83,13 @@ public class RESTGrupo {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @PUT
-    public Response updateGrupo(String jsonGrupo) {
+    public Response updateGrupo(@HeaderParam("Authorization") String authHeader, String jsonGrupo) {
+        // Validate bearer token using utility class
+        Response authResponse = AuthenticationUtil.validateTokenAndRoleOrReturnError(authHeader, "school-services");
+        if (authResponse != null) {
+            return authResponse;
+        }
+        
         String out = null;
         Gson gson = new Gson();
         Grupo grupo = gson.fromJson(jsonGrupo, Grupo.class);
@@ -87,7 +107,13 @@ public class RESTGrupo {
     @Path("deleteGrupo/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @DELETE
-    public Response deleteGrupo(@PathParam("id") int id) {
+    public Response deleteGrupo(@HeaderParam("Authorization") String authHeader, @PathParam("id") int id) {
+        // Validate bearer token using utility class
+        Response authResponse = AuthenticationUtil.validateTokenAndRoleOrReturnError(authHeader, "school-services");
+        if (authResponse != null) {
+            return authResponse;
+        }
+        
         String out = null;
         ControllerGrupo cg = new ControllerGrupo();
         

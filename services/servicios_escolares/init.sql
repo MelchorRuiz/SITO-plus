@@ -47,8 +47,8 @@ INSERT INTO carrera(nombre_carrera, estatus) VALUES ("INGENIERIA INDUSTRIAL CON 
 INSERT INTO carrera(nombre_carrera, estatus) VALUES ("INGENIERIA INDUSTRIAL CON TSU EN AUTOMOTRIZ", 1);
 INSERT INTO grupo(nombre_grupo, estatus, carrera_id) VALUES ("IDGS703", 1, 3);
 INSERT INTO grupo(nombre_grupo, estatus, carrera_id) VALUES ("EVN701", 1, 1);
-INSERT INTO alumno(matricula, nombre, nombre_usuario, contrasenia, estatus, grupo_id, carrera_id) VALUES (23001523, "Sandro Alexis Ramirez Rios", 23001523, "23001523", 1, 2, 3);
-INSERT INTO alumno(matricula, nombre, nombre_usuario, contrasenia,  estatus, carrera_id) VALUES (23003901, "Jaqueline Garcia", 23003901, "23003901", 1, 3);
+-- INSERT INTO alumno(matricula, nombre, nombre_usuario, contrasenia, estatus, grupo_id, carrera_id) VALUES (23001523, "Sandro Alexis Ramirez Rios", 23001523, "23001523", 1, 2, 3);
+-- INSERT INTO alumno(matricula, nombre, nombre_usuario, contrasenia,  estatus, carrera_id) VALUES (23003901, "Jaqueline Garcia", 23003901, "23003901", 1, 3);
 
 -- Procedures (modified to include grupo_id for alumno, and add delete procedures)
 
@@ -160,23 +160,23 @@ END
 $$
 DELIMITER ; 
 
-DELIMITER $$
-CREATE PROCEDURE asignarAlumnoGrupo( 
-IN var_matricula			INT,
-IN var_grupoId				INT
-)
-BEGIN
-	UPDATE alumno SET grupo_id = var_grupoId WHERE matricula = var_matricula;
-END
-$$
-DELIMITER ; 
+-- DELIMITER $$
+-- CREATE PROCEDURE asignarAlumnoGrupo( 
+-- IN var_matricula			INT,
+-- IN var_grupoId				INT
+-- )
+-- BEGIN
+-- 	UPDATE alumno SET grupo_id = var_grupoId WHERE matricula = var_matricula;
+-- END
+-- $$
+-- DELIMITER ; 
 
-DELIMITER $$
-CREATE PROCEDURE removerAlumnoGrupo( 
-IN var_matricula			INT
-)
-BEGIN
-	UPDATE alumno SET grupo_id = NULL WHERE matricula = var_matricula;
-END
-$$
-DELIMITER ;
+-- DELIMITER $$
+-- CREATE PROCEDURE removerAlumnoGrupo( 
+-- IN var_matricula			INT
+-- )
+-- BEGIN
+-- 	UPDATE alumno SET grupo_id = NULL WHERE matricula = var_matricula;
+-- END
+-- $$
+-- DELIMITER ;

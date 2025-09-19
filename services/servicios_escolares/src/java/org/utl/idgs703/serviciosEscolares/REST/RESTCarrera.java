@@ -6,6 +6,7 @@ package org.utl.idgs703.serviciosEscolares.REST;
 
 import com.google.gson.Gson;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
@@ -13,6 +14,7 @@ import jakarta.ws.rs.core.Response;
 import java.util.List;
 import org.utl.idgs703.serviciosEscolares.model.Carrera;
 import org.utl.idgs703.serviciosEscolares.control.ControllerCarrera;
+import org.utl.idgs703.serviciosEscolares.util.AuthenticationUtil;
 
 /**
  *
@@ -20,10 +22,17 @@ import org.utl.idgs703.serviciosEscolares.control.ControllerCarrera;
  */
 @Path("carrera")
 public class RESTCarrera {
+    
     @Path("getAllCarreras")
     @Produces(MediaType.APPLICATION_JSON)
     @GET
-    public Response getAllCarreras() {
+    public Response getAllCarreras(@HeaderParam("Authorization") String authHeader) {
+        // Validate bearer token using utility class
+        Response authResponse = AuthenticationUtil.validateTokenAndRoleOrReturnError(authHeader, "school-services");
+        if (authResponse != null) {
+            return authResponse;
+        }
+        
         String out = null;
         List<Carrera> carreras = null;
         ControllerCarrera cc = new ControllerCarrera();

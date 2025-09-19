@@ -8,6 +8,7 @@ import com.google.gson.Gson;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.HeaderParam;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
@@ -19,6 +20,7 @@ import java.sql.SQLException;
 import java.util.List;
 import org.utl.idgs703.serviciosEscolares.model.Alumno;
 import org.utl.idgs703.serviciosEscolares.control.ControllerAlumno;
+import org.utl.idgs703.serviciosEscolares.util.AuthenticationUtil;
 
 /**
  *
@@ -29,7 +31,13 @@ public class RESTAlumno {
     @Path("getAllAlumnos")
     @Produces(MediaType.APPLICATION_JSON)
     @GET
-    public Response getAllAlumnos() {
+    public Response getAllAlumnos(@HeaderParam("Authorization") String authHeader) {
+        // Validate bearer token using utility class
+        Response authResponse = AuthenticationUtil.validateTokenAndRoleOrReturnError(authHeader, "school-services");
+        if (authResponse != null) {
+            return authResponse;
+        }
+        
         String out = null;
         List<Alumno> alumnos = null;
         ControllerAlumno ca = new ControllerAlumno();
@@ -47,7 +55,13 @@ public class RESTAlumno {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @POST
-    public Response addAlumno(String jsonAlumno) {
+    public Response addAlumno(@HeaderParam("Authorization") String authHeader, String jsonAlumno) {
+        // Validate bearer token using utility class
+        Response authResponse = AuthenticationUtil.validateTokenAndRoleOrReturnError(authHeader, "school-services");
+        if (authResponse != null) {
+            return authResponse;
+        }
+        
         String out = null;
         Gson gson = new Gson();
         Alumno alumno = gson.fromJson(jsonAlumno, Alumno.class);
@@ -66,7 +80,13 @@ public class RESTAlumno {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @PUT
-    public Response updateAlumno(String jsonAlumno) {
+    public Response updateAlumno(@HeaderParam("Authorization") String authHeader, String jsonAlumno) {
+        // Validate bearer token using utility class
+        Response authResponse = AuthenticationUtil.validateTokenAndRoleOrReturnError(authHeader, "school-services");
+        if (authResponse != null) {
+            return authResponse;
+        }
+        
         String out = null;
         Gson gson = new Gson();
         Alumno alumno = gson.fromJson(jsonAlumno, Alumno.class);
@@ -84,7 +104,13 @@ public class RESTAlumno {
     @Path("deleteAlumno/{matricula}")
     @Produces(MediaType.APPLICATION_JSON)
     @DELETE
-    public Response deleteAlumno(@PathParam("matricula") int matricula) {
+    public Response deleteAlumno(@HeaderParam("Authorization") String authHeader, @PathParam("matricula") int matricula) {
+        // Validate bearer token using utility class
+        Response authResponse = AuthenticationUtil.validateTokenAndRoleOrReturnError(authHeader, "school-services");
+        if (authResponse != null) {
+            return authResponse;
+        }
+        
         String out = null;
         ControllerAlumno ca = new ControllerAlumno();
         
@@ -100,7 +126,13 @@ public class RESTAlumno {
     @Path("assignToGroup/{matricula}/{grupoId}")
     @Produces(MediaType.APPLICATION_JSON)
     @PUT
-    public Response assignToGroup(@PathParam("matricula") int matricula, @PathParam("grupoId") int grupoId) {
+    public Response assignToGroup(@HeaderParam("Authorization") String authHeader, @PathParam("matricula") int matricula, @PathParam("grupoId") int grupoId) {
+        // Validate bearer token using utility class
+        Response authResponse = AuthenticationUtil.validateTokenAndRoleOrReturnError(authHeader, "school-services");
+        if (authResponse != null) {
+            return authResponse;
+        }
+        
         String out = null;
         ControllerAlumno ca = new ControllerAlumno();
         
@@ -116,7 +148,13 @@ public class RESTAlumno {
     @Path("removeFromGroup/{matricula}")
     @Produces(MediaType.APPLICATION_JSON)
     @PUT
-    public Response removeFromGroup(@PathParam("matricula") int matricula) {
+    public Response removeFromGroup(@HeaderParam("Authorization") String authHeader, @PathParam("matricula") int matricula) {
+        // Validate bearer token using utility class
+        Response authResponse = AuthenticationUtil.validateTokenAndRoleOrReturnError(authHeader, "school-services");
+        if (authResponse != null) {
+            return authResponse;
+        }
+        
         String out = null;
         ControllerAlumno ca = new ControllerAlumno();
         
