@@ -19,18 +19,18 @@ CREATE TABLE grupo
     FOREIGN KEY (carrera_id) REFERENCES carrera(id_carrera)
 );
 
-CREATE TABLE alumno
-(
-    matricula INT NOT NULL PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL,
-    nombre_usuario INT NOT NULL,
-    contrasenia VARCHAR(20) NOT NULL,
-    estatus INT NOT NULL,
-    grupo_id INT NULL, 
-    carrera_id INT NOT NULL, 
-    FOREIGN KEY (carrera_id) REFERENCES carrera(id_carrera),
-    FOREIGN KEY (grupo_id) REFERENCES grupo(id_grupo)
-);
+-- CREATE TABLE alumno
+-- (
+--     matricula INT NOT NULL PRIMARY KEY,
+--     nombre VARCHAR(50) NOT NULL,
+--     nombre_usuario INT NOT NULL,
+--     contrasenia VARCHAR(20) NOT NULL,
+--     estatus INT NOT NULL,
+--     grupo_id INT NULL, 
+--     carrera_id INT NOT NULL, 
+--     FOREIGN KEY (carrera_id) REFERENCES carrera(id_carrera),
+--     FOREIGN KEY (grupo_id) REFERENCES grupo(id_grupo)
+-- );
 
 -- Inserts remain the same
 INSERT INTO carrera(nombre_carrera, estatus) VALUES ("INGENIERIA EN TECNOLOGIAS DE LA INFORMACION E INNOVACION CON TSU EN ENTORNOS VIRTUALES Y NEGOCIOS DIGITALES", 1);
@@ -114,51 +114,51 @@ END
 $$
 DELIMITER ; 
 
-DELIMITER $$
-CREATE PROCEDURE agregarAlumno( 
-IN var_matricula			INT,
-IN var_nombre	 			VARCHAR(50),
-IN var_nombreUsuario		INT,
-IN var_contrasenia 			VARCHAR(20),
-IN var_carreraId			INT,
-IN var_grupoId				INT
-)
-BEGIN
-	START TRANSACTION; 
-		INSERT INTO alumno(matricula, nombre, nombre_usuario, contrasenia, estatus, grupo_id, carrera_id) VALUES 
-        (var_matricula, var_nombre, var_nombreUsuario, var_contrasenia, 1, var_grupoId, var_carreraId);
-    COMMIT;
-END
-$$
-DELIMITER ; 
+-- DELIMITER $$
+-- CREATE PROCEDURE agregarAlumno( 
+-- IN var_matricula			INT,
+-- IN var_nombre	 			VARCHAR(50),
+-- IN var_nombreUsuario		INT,
+-- IN var_contrasenia 			VARCHAR(20),
+-- IN var_carreraId			INT,
+-- IN var_grupoId				INT
+-- )
+-- BEGIN
+-- 	START TRANSACTION; 
+-- 		INSERT INTO alumno(matricula, nombre, nombre_usuario, contrasenia, estatus, grupo_id, carrera_id) VALUES 
+--         (var_matricula, var_nombre, var_nombreUsuario, var_contrasenia, 1, var_grupoId, var_carreraId);
+--     COMMIT;
+-- END
+-- $$
+-- DELIMITER ; 
 
-DELIMITER $$
-CREATE PROCEDURE actualizarAlumno( 
-IN var_matricula			INT,
-IN var_nombre	 			VARCHAR(50),
-IN var_nombreUsuario		INT,
-IN var_contrasenia 			VARCHAR(20),
-IN var_carreraId			INT,
-IN var_grupoId				INT
-)
-BEGIN
-	START TRANSACTION; 
-		UPDATE alumno SET nombre = var_nombre, nombre_usuario = var_nombreUsuario, contrasenia = var_contrasenia, carrera_id = var_carreraId, grupo_id = var_grupoId
-        WHERE matricula = var_matricula;
-    COMMIT;
-END
-$$
-DELIMITER ; 
+-- DELIMITER $$
+-- CREATE PROCEDURE actualizarAlumno( 
+-- IN var_matricula			INT,
+-- IN var_nombre	 			VARCHAR(50),
+-- IN var_nombreUsuario		INT,
+-- IN var_contrasenia 			VARCHAR(20),
+-- IN var_carreraId			INT,
+-- IN var_grupoId				INT
+-- )
+-- BEGIN
+-- 	START TRANSACTION; 
+-- 		UPDATE alumno SET nombre = var_nombre, nombre_usuario = var_nombreUsuario, contrasenia = var_contrasenia, carrera_id = var_carreraId, grupo_id = var_grupoId
+--         WHERE matricula = var_matricula;
+--     COMMIT;
+-- END
+-- $$
+-- DELIMITER ; 
 
-DELIMITER $$
-CREATE PROCEDURE eliminarAlumno( 
-IN var_matricula			INT
-)
-BEGIN
-	UPDATE alumno SET estatus = 0 WHERE matricula = var_matricula;
-END
-$$
-DELIMITER ; 
+-- DELIMITER $$
+-- CREATE PROCEDURE eliminarAlumno( 
+-- IN var_matricula			INT
+-- )
+-- BEGIN
+-- 	UPDATE alumno SET estatus = 0 WHERE matricula = var_matricula;
+-- END
+-- $$
+-- DELIMITER ; 
 
 -- DELIMITER $$
 -- CREATE PROCEDURE asignarAlumnoGrupo( 

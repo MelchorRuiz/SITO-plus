@@ -281,31 +281,31 @@ def update_student(
             major=updated_student["major"]
         )
 
-    @app.delete("/students/{student_id}", response_model=MessageResponse)
-    def delete_student(
-        student_id: int,
-        current_user: dict = Depends(require_role(Role.SCHOOL_SERVICES))
-    ):
-        with get_db_connection() as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT id FROM students WHERE id = ?", (student_id,))
-            student = cursor.fetchone()
-            if not student:
-                raise HTTPException(status_code=404, detail="Student not found")
+@app.delete("/students/{student_id}", response_model=MessageResponse)
+def delete_student(
+    student_id: int,
+    current_user: dict = Depends(require_role(Role.SCHOOL_SERVICES))
+):
+    with get_db_connection() as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT id FROM students WHERE id = ?", (student_id,))
+        student = cursor.fetchone()
+        if not student:
+            raise HTTPException(status_code=404, detail="Student not found")
 
-            try:
-                auth_response = requests.delete(
-                    f"{AUTH_SERVICE_URL}/delete-user/{student_id}",
-                    headers={"Authorization": f"Bearer {current_user.get('token', '')}"}
+        try:
+            auth_response = requests.delete(
+                f"{AUTH_SERVICE_URL}/delete-user/{student_id}",
+                headers={"Authorization": f"Bearer {current_user.get('token', '')}"}
+            )
+            if auth_response.status_code != 200:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Failed to delete student in authentication service: {auth_response.text}"
                 )
-                if auth_response.status_code != 200:
-                    raise HTTPException(
-                        status_code=400,
-                        detail=f"Failed to delete student in authentication service: {auth_response.text}"
-                    )
-            except requests.RequestException:
-                raise HTTPException(status_code=503, detail="Authentication service unavailable")
+        except requests.RequestException:
+            raise HTTPException(status_code=503, detail="Authentication service unavailable")
 
-            cursor.execute("DELETE FROM students WHERE id = ?", (student_id,))
-            conn.commit()
-            return MessageResponse(message="Student deleted successfully")
+        cursor.execute("DELETE FROM students WHERE id = ?", (student_id,))
+        conn.commit()
+        return MessageResponse(message="Student deleted successfully")

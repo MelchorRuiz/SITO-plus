@@ -1,13 +1,14 @@
 // Updated controlador.js (await loadData in assign and remove)
 
-const URL = "http://localhost:8003/servicios-escolares/api";
 const authService = 'http://localhost:8001';
+const studentService = 'http://localhost:8002';
+const schoolServicesService = "http://localhost:8003/servicios-escolares/api";
 
 async function assignAlumnoToGroup() {
   const matricula = parseInt(document.getElementById('asignarAlumnoSelect').value);
   if (matricula) {
     try {
-      const res = await fetch(`${URL}/alumno/assignToGroup/${matricula}/${currentGrupoId}`, {
+      const res = await fetch(`${schoolServicesService}/alumno/assignToGroup/${matricula}/${currentGrupoId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${sessionStorage.getItem('token')}`
@@ -32,7 +33,7 @@ async function assignAlumnoToGroup() {
 async function removeAlumnoFromGroup(matricula) {
   if (confirm("¿Remover alumno del grupo?")) {
     try {
-      const res = await fetch(`${URL}/alumno/removeFromGroup/${matricula}`, {
+      const res = await fetch(`${schoolServicesService}/alumno/removeFromGroup/${matricula}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${sessionStorage.getItem('token')}`
@@ -64,7 +65,7 @@ let currentGrupoId = null; // For modals
 
 async function loadData() {
   try {
-    const resCarreras = await fetch(`${URL}/carrera/getAllCarreras`, {
+    const resCarreras = await fetch(`${schoolServicesService}/carrera/getAllCarreras`, {
       headers: {
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       }
@@ -76,7 +77,7 @@ async function loadData() {
     }
     carreras = await resCarreras.json();
 
-    const resGrupos = await fetch(`${URL}/grupo/getAllGrupos`, {
+    const resGrupos = await fetch(`${schoolServicesService}/grupo/getAllGrupos`, {
       headers: {
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       }
@@ -88,7 +89,7 @@ async function loadData() {
     }
     grupos = await resGrupos.json();
 
-    const resAlumnos = await fetch(`${URL}/alumno/getAllAlumnos`, {
+    const resAlumnos = await fetch(`${studentService}/students`, {
       headers: {
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       }
@@ -98,7 +99,8 @@ async function loadData() {
       window.location.href = 'index.html';
       return;
     }
-    alumnos = await resAlumnos.json();
+    const data = await resAlumnos.json();
+    alumnos = data.students;
 
     populateSelects();
     renderAlumnosTable();
@@ -125,30 +127,23 @@ function populateSelects() {
   addCarreraGrupo.innerHTML = options;
   editCarreraGrupo.innerHTML = options;
 
-  // Grupos for editAlumno
-  const editGrupo = document.getElementById('editGrupo');
-  let grupoOptions = '<option value="0">Sin grupo</option>';
-  grupos.forEach(g => {
-    grupoOptions += `<option value="${g.id_grupo}">${g.nombre_grupo}</option>`;
-  });
-  editGrupo.innerHTML = grupoOptions;
 }
 
 function renderAlumnosTable() {
   const tableBody = document.getElementById('alumnosTableBody');
   let rows = '';
+  if (alumnos.length === 0) {
+    rows = '<tr><td colspan="4">No hay alumnos registrados.</td></tr>';
+  }
   alumnos.forEach(a => {
     rows += `
       <tr>
-        <td>${a.matricula}</td>
-        <td>${a.nombre}</td>
-        <td>${a.usuario}</td>
-        <td>${a.contrasenia}</td>
-        <td>${a.carrera ? a.carrera.nombre_carrera : 'N/A'}</td>
-        <td>${a.grupo ? a.grupo.nombre_grupo : 'No tiene grupo'}</td>
+        <td>${a.id}</td>
+        <td>${a.name}</td>
+        <td>${a.major}</td>
         <td class="action-buttons">
-          <button class="btn btn-sm btn-outline-primary" onclick="editAlumno(${a.matricula})"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteAlumno(${a.matricula})"><i class="fas fa-trash-alt"></i></button>
+          <button class="btn btn-sm btn-outline-primary" onclick="editAlumno(${a.id})"><i class="fas fa-edit"></i></button>
+          <button class="btn btn-sm btn-outline-danger" onclick="deleteAlumno(${a.id})"><i class="fas fa-trash-alt"></i></button>
         </td>
       </tr>
     `;
@@ -160,7 +155,8 @@ function renderGruposTable() {
   const tableBody = document.getElementById('gruposTableBody');
   let rows = '';
   grupos.forEach(g => {
-    const numAlumnos = alumnos.filter(a => a.grupo && a.grupo.id_grupo === g.id_grupo).length;
+    // TODO: Fetch actual number of alumnos in grupo
+    const numAlumnos = 0;
     rows += `
       <tr>
         <td>${g.nombre_grupo}</td>
@@ -178,30 +174,18 @@ function renderGruposTable() {
 }
 
 async function saveAlumno() {
-  const matricula = parseInt(document.getElementById('addMatricula').value);
   const nombre = document.getElementById('addNombre').value;
-  const usuario = parseInt(document.getElementById('addUsuario').value);
-  const contrasenia = document.getElementById('addContrasenia').value;
-  const carreraId = parseInt(document.getElementById('addCarrera').value);
-
-  const alumno = {
-    matricula,
-    nombre,
-    usuario,
-    contrasenia,
-    estatus: 1,
-    carrera: { id_carrera: carreraId },
-    grupo: null
-  };
+  const carreraInput = document.getElementById('addCarrera');
+  const carrera = carreraInput.options[carreraInput.selectedIndex].text;
 
   try {
-    const res = await fetch(`${URL}/alumno/addAlumno`, {
+    const res = await fetch(`${studentService}/students`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       },
-      body: JSON.stringify(alumno)
+      body: JSON.stringify({ name: nombre, major: carrera })
     });
     if (res.status === 401 || res.status === 403) {
       alert('Su sesión ha expirado. Por favor, inicie sesión de nuevo.');
@@ -218,13 +202,16 @@ async function saveAlumno() {
 }
 
 function editAlumno(matricula) {
-  const alumno = alumnos.find(a => a.matricula === matricula);
-  document.getElementById('editMatricula').value = alumno.matricula;
-  document.getElementById('editNombre').value = alumno.nombre;
-  document.getElementById('editUsuario').value = alumno.usuario;
-  document.getElementById('editContrasenia').value = alumno.contrasenia;
-  document.getElementById('editCarrera').value = alumno.carrera ? alumno.carrera.id_carrera : '';
-  document.getElementById('editGrupo').value = alumno.grupo ? alumno.grupo.id_grupo : 0;
+  const alumno = alumnos.find(a => a.id === matricula);
+  document.getElementById('editMatricula').value = alumno.id;
+  document.getElementById('editNombre').value = alumno.name;
+  const carreraInput = document.getElementById('editCarrera');
+  for (let i = 0; i < carreraInput.options.length; i++) {
+    if (carreraInput.options[i].text === alumno.major) {
+      carreraInput.selectedIndex = i;
+      break;
+    }
+  }
 
   bootstrap.Modal.getOrCreateInstance(document.getElementById('modalEditarAlumno')).show();
 }
@@ -232,29 +219,17 @@ function editAlumno(matricula) {
 async function updateAlumno() {
   const matricula = parseInt(document.getElementById('editMatricula').value);
   const nombre = document.getElementById('editNombre').value;
-  const usuario = parseInt(document.getElementById('editUsuario').value);
-  const contrasenia = document.getElementById('editContrasenia').value;
-  const carreraId = parseInt(document.getElementById('editCarrera').value);
-  const grupoId = parseInt(document.getElementById('editGrupo').value);
-
-  const alumno = {
-    matricula,
-    nombre,
-    usuario,
-    contrasenia,
-    estatus: 1,
-    carrera: { id_carrera: carreraId },
-    grupo: grupoId > 0 ? { id_grupo: grupoId } : null
-  };
+  const carreraInput = document.getElementById('editCarrera');
+  const carrera = carreraInput.options[carreraInput.selectedIndex].text;
 
   try {
-    const res = await fetch(`${URL}/alumno/updateAlumno`, {
-      method: 'PUT',
+    const res = await fetch(`${studentService}/students/${matricula}`, {
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${sessionStorage.getItem('token')}`
       },
-      body: JSON.stringify(alumno)
+      body: JSON.stringify({ name: nombre, major: carrera })
     });
     if (res.status === 401 || res.status === 403) {
       alert('Su sesión ha expirado. Por favor, inicie sesión de nuevo.');
@@ -273,7 +248,7 @@ async function updateAlumno() {
 async function deleteAlumno(matricula) {
   if (confirm("¿Eliminar alumno?")) {
     try {
-      const res = await fetch(`${URL}/alumno/deleteAlumno/${matricula}`, {
+      const res = await fetch(`${studentService}/students/${matricula}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${sessionStorage.getItem('token')}`
@@ -304,7 +279,7 @@ async function saveGrupo() {
   };
 
   try {
-    const res = await fetch(`${URL}/grupo/addGrupo`, {
+    const res = await fetch(`${schoolServicesService}/grupo/addGrupo`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -348,7 +323,7 @@ async function updateGrupo() {
   };
 
   try {
-    const res = await fetch(`${URL}/grupo/updateGrupo`, {
+    const res = await fetch(`${schoolServicesService}/grupo/updateGrupo`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -373,7 +348,7 @@ async function updateGrupo() {
 async function deleteGrupo(id) {
   if (confirm("¿Eliminar grupo?")) {
     try {
-      const res = await fetch(`${URL}/grupo/deleteGrupo/${id}`, {
+      const res = await fetch(`${schoolServicesService}/grupo/deleteGrupo/${id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${sessionStorage.getItem('token')}`
@@ -423,7 +398,7 @@ function viewGrupoDetails(id) {
   let options = '<option value="">Seleccione un alumno</option>';
   const alumnosSinGrupo = alumnos.filter(a => !a.grupo);
   alumnosSinGrupo.forEach(a => {
-    options += `<option value="${a.matricula}">${a.nombre} (${a.matricula})</option>`;
+    options += `<option value="${a.id}">${a.name} (${a.id})</option>`;
   });
   asignarSelect.innerHTML = options;
 
@@ -434,7 +409,7 @@ async function assignAlumnoToGroup() {
   const matricula = parseInt(document.getElementById('asignarAlumnoSelect').value);
   if (matricula) {
     try {
-      const res = await fetch(`${URL}/alumno/assignToGroup/${matricula}/${currentGrupoId}`, {
+      const res = await fetch(`${schoolServicesService}/alumno/assignToGroup/${matricula}/${currentGrupoId}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${sessionStorage.getItem('token')}`
@@ -459,7 +434,7 @@ async function assignAlumnoToGroup() {
 async function removeAlumnoFromGroup(matricula) {
   if (confirm("¿Remover alumno del grupo?")) {
     try {
-      const res = await fetch(`${URL}/alumno/removeFromGroup/${matricula}`, {
+      const res = await fetch(`${schoolServicesService}/alumno/removeFromGroup/${matricula}`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${sessionStorage.getItem('token')}`
@@ -488,7 +463,7 @@ function checkBackendStatus() {
   loadingScreen.style.display = 'flex';
   mainContent.style.display = 'none';
 
-  fetch(`${URL}/status`)
+  fetch(`${schoolServicesService}/status`)
     .then(response => {
       if (!response.ok) {
         throw new Error('Network response was not ok');
