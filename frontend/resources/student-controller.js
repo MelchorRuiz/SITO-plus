@@ -243,6 +243,11 @@ function changePassword(event) {
     });
 }
 
+function logout() {
+  sessionStorage.removeItem('token');
+  window.location.href = 'index.html';
+}
+
 
 function checkBackendStatus() {
     const loadingScreen = document.getElementById('loading-screen');
