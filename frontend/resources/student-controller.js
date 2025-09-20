@@ -1,6 +1,6 @@
 const authService = 'http://localhost:8001';
 const studentService = 'http://localhost:8002';
-const schoolServicesService = 'https://68c88b915d8d9f514735a4f0.mockapi.io';
+const schoolServicesService = 'http://localhost:8003/servicios-escolares/api';
 const teacherService = 'https://68c88b915d8d9f514735a4f0.mockapi.io';
 
 function showSection(sectionId) {
@@ -35,7 +35,7 @@ function loadGroups() {
     contentDiv.style.display = 'none';
     errorDiv.style.display = 'none';
 
-    fetch(`${schoolServicesService}/groups`, {
+    fetch(`${schoolServicesService}/alumnogrupo/getGruposByMatricula`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
@@ -63,10 +63,7 @@ function loadGroups() {
                     const groupCard = document.createElement('div');
                     groupCard.className = 'group-card';
                     groupCard.innerHTML = `
-                            <div class="group-name">${group.name}</div>
-                            <div class="group-details">
-                                <strong>Profesor:</strong> ${group.teacher}<br>
-                            </div>
+                            <div class="group-name">${group.nombreGrupo}</div>
                         `;
                     contentDiv.appendChild(groupCard);
                 });

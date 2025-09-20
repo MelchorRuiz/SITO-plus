@@ -4,56 +4,6 @@ const authService = 'http://localhost:8001';
 const studentService = 'http://localhost:8002';
 const schoolServicesService = "http://localhost:8003/servicios-escolares/api";
 
-async function assignAlumnoToGroup() {
-  const matricula = parseInt(document.getElementById('asignarAlumnoSelect').value);
-  if (matricula) {
-    try {
-      const res = await fetch(`${schoolServicesService}/alumno/assignToGroup/${matricula}/${currentGrupoId}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-        }
-      });
-      if (res.status === 401 || res.status === 403) {
-        alert('Su sesión ha expirado. Por favor, inicie sesión de nuevo.');
-        window.location.href = 'index.html';
-        return;
-      }
-      if (res.ok) {
-        await loadData();
-        bootstrap.Modal.getInstance(document.getElementById('modalAsignarAlumno')).hide();
-        viewGrupoDetails(currentGrupoId); // Refresh details
-      }
-    } catch (error) {
-      console.error("Error assigning:", error);
-    }
-  }
-}
-
-async function removeAlumnoFromGroup(matricula) {
-  if (confirm("¿Remover alumno del grupo?")) {
-    try {
-      const res = await fetch(`${schoolServicesService}/alumno/removeFromGroup/${matricula}`, {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-        }
-      });
-      if (res.status === 401 || res.status === 403) {
-        alert('Su sesión ha expirado. Por favor, inicie sesión de nuevo.');
-        window.location.href = 'index.html';
-        return;
-      }
-      if (res.ok) {
-        await loadData();
-        viewGrupoDetails(currentGrupoId); // Refresh details
-      }
-    } catch (error) {
-      console.error("Error removing:", error);
-    }
-  }
-}
-
 // For professors, since no data, JS doesn't fill detallesProfesoresBody yet
 
 // New controlador.js (combined and expanded from controladorGrupo and controladorAlumno)
@@ -154,23 +104,42 @@ function renderAlumnosTable() {
 function renderGruposTable() {
   const tableBody = document.getElementById('gruposTableBody');
   let rows = '';
-  grupos.forEach(g => {
-    // TODO: Fetch actual number of alumnos in grupo
-    const numAlumnos = 0;
-    rows += `
-      <tr>
-        <td>${g.nombre_grupo}</td>
-        <td>${g.carrera ? g.carrera.nombre_carrera : 'N/A'}</td>
-        <td>${numAlumnos}</td>
-        <td class="action-buttons">
-          <button class="btn btn-sm btn-outline-info" onclick="viewGrupoDetails(${g.id_grupo})"><i class="fas fa-eye"></i></button>
-          <button class="btn btn-sm btn-outline-primary" onclick="editGrupo(${g.id_grupo})"><i class="fas fa-edit"></i></button>
-          <button class="btn btn-sm btn-outline-danger" onclick="deleteGrupo(${g.id_grupo})"><i class="fas fa-trash-alt"></i></button>
-        </td>
-      </tr>
-    `;
-  });
-  tableBody.innerHTML = rows;
+  if (grupos.length === 0) {
+    rows = '<tr><td colspan="4">No hay grupos registrados.</td></tr>';
+    tableBody.innerHTML = rows;
+    return;
+  }
+  const promises = grupos.map(g => (
+    fetch(`${schoolServicesService}/alumnogrupo/getNumeroAlumnosByGrupoId/${g.id_grupo}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+      }
+    })
+  ));
+  Promise.all(promises)
+    .then(responses => Promise.all(responses.map(r => r.json())))
+    .then(data => {
+      const numAlumnos = data.map(d => d.total);
+      grupos.forEach((g, i) => {
+        rows += `
+          <tr>
+            <td>${g.nombre_grupo}</td>
+            <td>${g.carrera ? g.carrera.nombre_carrera : 'N/A'}</td>
+            <td>${numAlumnos[i] || 0}</td>
+            <td class="action-buttons">
+              <button class="btn btn-sm btn-outline-info" onclick="viewGrupoDetails(${g.id_grupo})"><i class="fas fa-eye"></i></button>
+              <button class="btn btn-sm btn-outline-primary" onclick="editGrupo(${g.id_grupo})"><i class="fas fa-edit"></i></button>
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteGrupo(${g.id_grupo})"><i class="fas fa-trash-alt"></i></button>
+            </td>
+          </tr>
+        `;
+        tableBody.innerHTML = rows;
+      });
+    })
+    .catch(error => {
+      console.error("Error fetching alumno counts:", error);
+    });
 }
 
 async function saveAlumno() {
@@ -373,47 +342,66 @@ function viewGrupoDetails(id) {
   const grupo = grupos.find(g => g.id_grupo === id);
   document.getElementById('detallesTitle').textContent = `Detalles de ${grupo.nombre_grupo}`;
 
-  const alumnosEnGrupo = alumnos.filter(a => a.grupo && a.grupo.id_grupo === id);
-  const tableBody = document.getElementById('detallesAlumnosBody');
-  let rows = '';
-  if (alumnosEnGrupo.length === 0) {
-    rows = '<tr><td colspan="3">No hay ningún alumno en el grupo.</td></tr>';
-  } else {
-    alumnosEnGrupo.forEach(a => {
-      rows += `
-        <tr>
-          <td>${a.matricula}</td>
-          <td>${a.nombre}</td>
-          <td>
-            <button class="btn btn-sm btn-outline-danger" onclick="removeAlumnoFromGroup(${a.matricula})"><i class="fas fa-user-minus"></i> Remover</button>
-          </td>
-        </tr>
-      `;
+  fetch(`${schoolServicesService}/alumnogrupo/getAlumnosByGrupoId/${id}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+    }
+  }).then(response => {
+    if (!response.ok) {
+      throw new Error('Error fetching alumnos');
+    }
+    return response.json();
+  }).then(data => {
+    const alumnosEnGrupo = data;
+    const tableBody = document.getElementById('detallesAlumnosBody');
+    let rows = '';
+    if (alumnosEnGrupo.length === 0) {
+      rows = '<tr><td colspan="3">No hay ningún alumno en el grupo.</td></tr>';
+    } else {
+      alumnosEnGrupo.forEach(a => {
+        rows += `
+          <tr>
+            <td>${a.matricula}</td>
+            <td>${a.alumnoNombre}</td>
+            <td>
+              <button class="btn btn-sm btn-outline-danger" onclick="removeAlumnoFromGroup(${a.id})"><i class="fas fa-user-minus"></i> Remover</button>
+            </td>
+          </tr>
+        `;
+      });
+    }
+    tableBody.innerHTML = rows;
+
+    // Populate assign select with alumnos sin grupo
+    const asignarSelect = document.getElementById('asignarAlumnoSelect');
+    let options = '<option value="">Seleccione un alumno</option>';
+    const alumnosSinGrupo = alumnos.filter(a => !alumnosEnGrupo.some(ag => ag.matricula === a.id));
+    alumnosSinGrupo.forEach(a => {
+      options += `<option value="${a.id}">${a.name} (${a.id})</option>`;
     });
-  }
-  tableBody.innerHTML = rows;
+    asignarSelect.innerHTML = options;
 
-  // Populate assign select with alumnos sin grupo
-  const asignarSelect = document.getElementById('asignarAlumnoSelect');
-  let options = '<option value="">Seleccione un alumno</option>';
-  const alumnosSinGrupo = alumnos.filter(a => !a.grupo);
-  alumnosSinGrupo.forEach(a => {
-    options += `<option value="${a.id}">${a.name} (${a.id})</option>`;
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalDetallesGrupo')).show();
+  }).catch(error => {
+    console.error("Error fetching alumnos:", error);
   });
-  asignarSelect.innerHTML = options;
 
-  bootstrap.Modal.getOrCreateInstance(document.getElementById('modalDetallesGrupo')).show();
 }
 
 async function assignAlumnoToGroup() {
-  const matricula = parseInt(document.getElementById('asignarAlumnoSelect').value);
+  const select = document.getElementById('asignarAlumnoSelect');
+  const matricula = parseInt(select.value);
+  const alumnoNombre = select.options[select.selectedIndex].text.split(' (')[0];
   if (matricula) {
     try {
-      const res = await fetch(`${schoolServicesService}/alumno/assignToGroup/${matricula}/${currentGrupoId}`, {
-        method: 'PUT',
+      const res = await fetch(`${schoolServicesService}/alumnogrupo/addAlumnoGrupo`, {
+        method: 'POST',
         headers: {
+          'Content-Type': 'application/json',
           'Authorization': `Bearer ${sessionStorage.getItem('token')}`
-        }
+        },
+        body: JSON.stringify({ matricula, alumnoNombre, grupoId: currentGrupoId })
       });
       if (res.status === 401 || res.status === 403) {
         alert('Su sesión ha expirado. Por favor, inicie sesión de nuevo.');
@@ -431,11 +419,11 @@ async function assignAlumnoToGroup() {
   }
 }
 
-async function removeAlumnoFromGroup(matricula) {
+async function removeAlumnoFromGroup(id) {
   if (confirm("¿Remover alumno del grupo?")) {
     try {
-      const res = await fetch(`${schoolServicesService}/alumno/removeFromGroup/${matricula}`, {
-        method: 'PUT',
+      const res = await fetch(`${schoolServicesService}/alumnogrupo/deleteAlumnoGrupo/${id}`, {
+        method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${sessionStorage.getItem('token')}`
         }
@@ -446,7 +434,7 @@ async function removeAlumnoFromGroup(matricula) {
         return;
       }
       if (res.ok) {
-        loadData();
+        await loadData();
         viewGrupoDetails(currentGrupoId); // Refresh details
       }
     } catch (error) {

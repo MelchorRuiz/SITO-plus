@@ -147,4 +147,17 @@ public class AuthenticationUtil {
             """;
         return Response.status(Response.Status.FORBIDDEN).entity(errorResponse).build();
     }
+
+    /**
+     * Gets the subject (user ID) from the token as an integer
+     * @param authHeader The Authorization header containing the bearer token
+     * @return subject como int, o lanza excepción si no es válido
+     */
+    public static int getSubjectAsInt(String authHeader) throws Exception {
+        TokenValidationResult result = validateTokenWithDetails(authHeader);
+        if (!result.isValid() || result.getSubject() == null) {
+            throw new Exception("Token inválido o sin subject");
+        }
+        return Integer.parseInt(result.getSubject());
+    }
 }

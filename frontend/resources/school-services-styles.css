@@ -165,3 +165,21 @@ body {
         transform: rotate(360deg);
     }
 }
+
+#error-message {
+    display: none;
+    text-align: center;
+    color: #5e35b1;
+    margin-top: 20px;
+    background: #f3e5f5;
+    border: 1px solid #e8e0ff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(156, 136, 255, 0.1);
+}
+
+#error-message p {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 500;
+}
