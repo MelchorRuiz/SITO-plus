@@ -6,6 +6,7 @@ services:
     container_name: frontend_service
     ports:
       - "8000:80"
+
   authentication:
     build:
       context: ./services/authentication
@@ -15,6 +16,7 @@ services:
       - "8001:80"
     networks:
       - backend_network
+
   students:
     build:
       context: ./services/students
@@ -24,6 +26,7 @@ services:
       - "8002:80"
     networks:
       - backend_network
+
   school_services:
     build:
       context: ./services/servicios_escolares
@@ -45,7 +48,32 @@ services:
       MYSQL_PASSWORD: sito_password
     volumes:
       - "./services/servicios_escolares/init.sql:/docker-entrypoint-initdb.d/init.sql"
-      - "/tmp/mysql-data:/var/lib/mysql"
+      - "/tmp/school_services_db_data:/var/lib/mysql"
+    networks:
+      - backend_network
+  
+  human-resources:
+    build:
+      context: ./services/recursos-humanos-service
+      dockerfile: Dockerfile
+    container_name: human_resources_service
+    ports:
+      - "8004:8080"
+    networks:
+      - backend_network
+    depends_on:
+      - human_resources_db
+  human_resources_db:
+    image: mysql:9.4.0
+    container_name: human_resources_db
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: human_resources_db
+      MYSQL_USER: sito_user
+      MYSQL_PASSWORD: sito_password
+    volumes:
+      - "./services/recursos-humanos-service/recursos-humanos-services.sql:/docker-entrypoint-initdb.d/init.sql"
+      - "/tmp/human_resources_db_data:/var/lib/mysql"
     networks:
       - backend_network
 

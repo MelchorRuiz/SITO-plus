@@ -1,9 +1,9 @@
-DROP DATABASE IF EXISTS recursos_humanos;
+DROP DATABASE IF EXISTS human_resources_db;
 -- Crear base de datos (si no existe)
-CREATE DATABASE IF NOT EXISTS recursos_humanos;
+CREATE DATABASE IF NOT EXISTS human_resources_db;
 
 -- Usar la base de datos
-USE recursos_humanos;
+USE human_resources_db;
 
 -- Crear la tabla Profesor
 CREATE TABLE profesores (
