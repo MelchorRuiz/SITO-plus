@@ -3,6 +3,7 @@
 const authService = 'http://localhost:8001';
 const studentService = 'http://localhost:8002';
 const schoolServicesService = "http://localhost:8003/servicios-escolares/api";
+const humanResourcesService = "http://localhost:8004/api/v1";
 
 // For professors, since no data, JS doesn't fill detallesProfesoresBody yet
 
@@ -11,6 +12,7 @@ const schoolServicesService = "http://localhost:8003/servicios-escolares/api";
 let carreras = [];
 let grupos = [];
 let alumnos = [];
+let profesores = [];
 let currentGrupoId = null; // For modals
 
 async function loadData() {
@@ -51,6 +53,18 @@ async function loadData() {
     }
     const data = await resAlumnos.json();
     alumnos = data.students;
+
+    const resProfesores = await fetch(`${humanResourcesService}/profesores`, {
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+      }
+    });
+    if (resProfesores.status === 401 || resProfesores.status === 403) {
+      alert('Su sesión ha expirado. Por favor, inicie sesión de nuevo.');
+      window.location.href = 'index.html';
+      return;
+    }
+    profesores = await resProfesores.json();
 
     populateSelects();
     renderAlumnosTable();
@@ -382,7 +396,49 @@ function viewGrupoDetails(id) {
     });
     asignarSelect.innerHTML = options;
 
-    bootstrap.Modal.getOrCreateInstance(document.getElementById('modalDetallesGrupo')).show();
+    fetch(`${schoolServicesService}/grupoprofesor/getProfesoresByGrupoId/${id}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+      }
+    }).then(response => {
+      if (!response.ok) {
+        throw new Error('Error fetching grupos');
+      }
+      return response.json();
+    }).then(data => {
+      const profesoresEnGrupo = data;
+      const tableBodyProf = document.getElementById('detallesProfesoresBody');
+      let rowsProf = '';
+      if (profesoresEnGrupo.length === 0) {
+        rowsProf = '<tr><td colspan="3">No hay ningún profesor asignado al grupo.</td></tr>';
+      } else {
+        profesoresEnGrupo.forEach(p => {
+          rowsProf += `
+            <tr>
+              <td>${p.profesorId}</td>
+              <td>${p.profesorNombre}</td>
+              <td>
+                <button class="btn btn-sm btn-outline-danger" onclick="removeProfesorFromGroup(${p.id})"><i class="fas fa-user-minus"></i> Remover</button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+      tableBodyProf.innerHTML = rowsProf;
+
+      const asignarProfesorSelect = document.getElementById('asignarProfesorSelect');
+      let optionsProf = '<option value="">Seleccione un profesor</option>';
+      const profesoresSinGrupo = profesores.filter(p => !profesoresEnGrupo.some(pg => pg.profesorId === p.numeroEmpleado));
+      profesoresSinGrupo.forEach(p => {
+        optionsProf += `<option value="${p.numeroEmpleado}">${p.nombre} ${p.apellido} (${p.numeroEmpleado})</option>`;
+      });
+      asignarProfesorSelect.innerHTML = optionsProf;
+
+      bootstrap.Modal.getOrCreateInstance(document.getElementById('modalDetallesGrupo')).show();
+    }).catch(error => {
+      console.error("Error fetching alumnos:", error);
+    });
   }).catch(error => {
     console.error("Error fetching alumnos:", error);
   });
@@ -439,6 +495,62 @@ async function removeAlumnoFromGroup(id) {
       }
     } catch (error) {
       console.error("Error removing:", error);
+    }
+  }
+}
+
+
+function assignProfesorToGroup() {
+  const select = document.getElementById('asignarProfesorSelect');
+  const profesorId = select.value;
+  const profesorNombre = select.options[select.selectedIndex].text.split(' (')[0];
+  if (profesorId) {
+    fetch(`${schoolServicesService}/grupoprofesor/addGrupoProfesor`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+      },
+      body: JSON.stringify({ profesorId, profesorNombre, grupoId: currentGrupoId })
+    }).then(async response => {
+      if (response.ok) {
+        loadData();
+        bootstrap.Modal.getInstance(document.getElementById('modalAsignarProfesor')).hide();
+        viewGrupoDetails(currentGrupoId); // Refresh details
+      } else {
+        if (response.status === 401 || response.status === 403) {
+          alert('Su sesión ha expirado. Por favor, inicie sesión de nuevo.');
+          window.location.href = 'index.html';
+          return;
+        }
+        throw new Error('Error assigning profesor');
+      }
+    }).catch(error => {
+      console.error("Error assigning profesor:", error);
+    });
+  }
+}
+
+async function removeProfesorFromGroup(id) {
+  if (confirm("¿Remover profesor del grupo?")) {
+    try {
+      const res = await fetch(`${schoolServicesService}/grupoprofesor/deleteGrupoProfesor/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+        }
+      });
+      if (res.status === 401 || res.status === 403) {
+        alert('Su sesión ha expirado. Por favor, inicie sesión de nuevo.');
+        window.location.href = 'index.html';
+        return;
+      }
+      if (res.ok) {
+        await loadData();
+        viewGrupoDetails(currentGrupoId); // Refresh details
+      }
+    } catch (error) {
+      console.error("Error removing profesor:", error);
     }
   }
 }

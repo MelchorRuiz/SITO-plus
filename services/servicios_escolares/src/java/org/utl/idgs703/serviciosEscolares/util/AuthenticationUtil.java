@@ -160,4 +160,17 @@ public class AuthenticationUtil {
         }
         return Integer.parseInt(result.getSubject());
     }
+
+    /**
+     * Gets the subject (user ID) from the token as a string
+     * @param token The JWT token
+     * @return subject como String, o lanza excepción si no es válido
+     */
+    public static String getSubjectAsString(String authHeader) throws Exception {
+        TokenValidationResult result = validateTokenWithDetails(authHeader);
+        if (!result.isValid() || result.getSubject() == null) {
+            throw new Exception("Token inválido o sin subject");
+        }
+        return result.getSubject();   
+    }
 }

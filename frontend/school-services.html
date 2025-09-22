@@ -308,13 +308,12 @@
                                     </tr>
                                 </thead>
                                 <tbody id="detallesProfesoresBody">
-                                    <tr>
-                                        <td colspan="3">No hay profesores disponibles aún.</td>
-                                    </tr>
+                                    <!-- Filled by JS -->
                                 </tbody>
                             </table>
                         </div>
-                        <button class="btn btn-primary btn-sm mt-2">Asignar Profesor</button>
+                        <button class="btn btn-primary btn-sm mt-2" data-bs-toggle="modal"
+                            data-bs-target="#modalAsignarProfesor">Asignar Profesor</button>
                         <!-- Placeholder, no functionality yet -->
                     </div>
                     <div class="modal-footer">
@@ -346,6 +345,32 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                         <button type="button" class="btn btn-primary" onclick="assignAlumnoToGroup()">Asignar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Asignar Profesor a Grupo -->
+        <div class="modal fade" id="modalAsignarProfesor" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Asignar Profesor a Grupo</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form>
+                            <div class="mb-3">
+                                <label for="asignarProfesorSelect" class="form-label">Seleccionar Profesor</label>
+                                <select class="form-select" id="asignarProfesorSelect" required>
+                                    <!-- Filled by JS -->
+                                </select>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="button" class="btn btn-primary" onclick="assignProfesorToGroup()">Asignar</button>
                     </div>
                 </div>
             </div>

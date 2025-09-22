@@ -29,6 +29,16 @@ CREATE TABLE alumno_grupo
     FOREIGN KEY (grupo_id) REFERENCES grupo(id_grupo)
 );
 
+CREATE TABLE grupo_profesor
+(
+    id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    profesor_id VARCHAR(50) NOT NULL,
+    profesor_nombre VARCHAR(50) NOT NULL,
+    grupo_id INT NOT NULL,
+    estatus INT NOT NULL,
+    FOREIGN KEY (grupo_id) REFERENCES grupo(id_grupo)
+);
+
 -- CREATE TABLE alumno
 -- (
 --     matricula INT NOT NULL PRIMARY KEY,
