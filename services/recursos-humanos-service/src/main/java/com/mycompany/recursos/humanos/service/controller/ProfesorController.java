@@ -4,6 +4,10 @@ import com.mycompany.recursos.humanos.service.model.Profesor;
 import com.mycompany.recursos.humanos.service.service.ProfesorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import com.mycompany.recursos.humanos.service.security.AuthValidator;
+import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -14,38 +18,47 @@ public class ProfesorController {
 
     @Autowired
     private ProfesorService service;
+    @Autowired
+    private AuthValidator authValidator;
 
     @PostMapping
-    public Map<String,Object> crearProfesor(@RequestBody Profesor p){
-        Profesor saved = service.crearProfesor(p);
-        return Map.of("id", saved.getId(), "mensaje", "Profesor creado");
+    public ResponseEntity<?> crearProfesor(@RequestBody Profesor p, HttpServletRequest request){
+        authValidator.validate(request, List.of("human-resources"));
+        try {
+            Profesor creado = service.crearProfesor(p, request);
+            return ResponseEntity.ok(creado);
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(Map.of("error", ex.getMessage()));
+        }
     }
 
     @GetMapping
-    public List<Profesor> obtenerTodos(){
+    public List<Profesor> obtenerTodos(HttpServletRequest request){
+        authValidator.validate(request, List.of("human-resources", "school-services"));
         return service.obtenerTodos();
     }
 
     @GetMapping("/{id}")
-    public Profesor obtenerPorId(@PathVariable Long id){
+    public Profesor obtenerPorId(@PathVariable Long id, HttpServletRequest request){
+        authValidator.validate(request, List.of("human-resources", "school-services"));
         return service.obtenerPorId(id);
     }
 
     @PutMapping("/{id}")
-    public Map<String,String> actualizarProfesor(@PathVariable Long id, @RequestBody Profesor p){
+    public Profesor actualizarProfesor(@PathVariable Long id, @RequestBody Profesor p, HttpServletRequest request){
+        authValidator.validate(request, List.of("human-resources"));
         service.actualizarProfesor(id, p);
-        return Map.of("mensaje","Profesor actualizado");
-    }
-
-    @PutMapping("/{id}/contrasena")
-    public Map<String,String> cambiarContrasena(@PathVariable Long id, @RequestBody Map<String,String> payload){
-        service.cambiarContrasena(id, payload.get("nueva"));
-        return Map.of("mensaje","Contraseña actualizada");
+        return service.obtenerPorId(id);
     }
 
     @DeleteMapping("/{id}")
-    public Map<String,String> eliminarProfesor(@PathVariable Long id){
-        service.eliminarProfesor(id);
-        return Map.of("mensaje","Profesor eliminado");
+    public ResponseEntity<?> eliminarProfesor(@PathVariable Long id, HttpServletRequest request) {
+        authValidator.validate(request, List.of("human-resources"));
+        try {
+            service.eliminarProfesor(id, request);
+            return ResponseEntity.ok(Map.of("mensaje", "Profesor eliminado"));
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(Map.of("error", ex.getMessage()));
+        }
     }
 }

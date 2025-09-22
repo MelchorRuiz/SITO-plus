@@ -19,11 +19,7 @@ public class Profesor {
     @Column(nullable = false)
     private String apellido;
 
-    private String materia;
     private Double salario;
-
-    @Column(name = "hashed_password", nullable = false)
-    private String hashedPassword;
 
     @Column(nullable = false)
     private String puesto;
@@ -41,14 +37,8 @@ public class Profesor {
     public String getApellido() { return apellido; }
     public void setApellido(String apellido) { this.apellido = apellido; }
 
-    public String getMateria() { return materia; }
-    public void setMateria(String materia) { this.materia = materia; }
-
     public Double getSalario() { return salario; }
     public void setSalario(Double salario) { this.salario = salario; }
-
-    public String getHashedPassword() { return hashedPassword; }
-    public void setHashedPassword(String hashedPassword) { this.hashedPassword = hashedPassword; }
 
     public String getPuesto() { return puesto; }
     public void setPuesto(String puesto) { this.puesto = puesto; }
