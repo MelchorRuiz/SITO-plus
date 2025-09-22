@@ -77,6 +77,16 @@ services:
     networks:
       - backend_network
 
+  teachers:
+    build:
+      context: ./services/teachers
+      dockerfile: Dockerfile
+    container_name: teachers_service
+    ports:
+      - "8005:80"
+    networks:
+      - backend_network
+
 networks:
   backend_network:
     driver: bridge

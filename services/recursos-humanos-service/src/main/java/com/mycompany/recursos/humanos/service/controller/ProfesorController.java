@@ -61,4 +61,15 @@ public class ProfesorController {
             return ResponseEntity.status(500).body(Map.of("error", ex.getMessage()));
         }
     }
+
+    @GetMapping("/yo")
+    public ResponseEntity<?> obtenerMiNombre(HttpServletRequest request) {
+        try {
+            String userId = authValidator.validateAndGetUserId(request, List.of("teacher"));
+            Profesor profesor = service.obtenerPorNumeroEmpleado(userId);
+            return ResponseEntity.ok(profesor);
+        } catch (Exception ex) {
+            return ResponseEntity.status(500).body(Map.of("error", ex.getMessage()));
+        }
+    }
 }

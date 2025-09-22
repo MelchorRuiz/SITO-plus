@@ -87,7 +87,7 @@ public class RESTAlumnoGrupo {
 	@Produces(MediaType.APPLICATION_JSON)
 	@GET
 	public Response getAlumnosByGrupoId(@HeaderParam("Authorization") String authHeader, @PathParam("grupoId") int grupoId) {
-		Response authResponse = AuthenticationUtil.validateTokenAndRoleOrReturnError(authHeader, "school-services");
+		Response authResponse = AuthenticationUtil.validateTokenAndAnyRoleOrReturnError(authHeader, "school-services", "teacher");
 		if (authResponse != null) {
 			return authResponse;
 		}

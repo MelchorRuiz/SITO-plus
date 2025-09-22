@@ -60,6 +60,11 @@ public class ProfesorService {
                 .orElseThrow(() -> new RuntimeException("Profesor no encontrado"));
     }
 
+    public Profesor obtenerPorNumeroEmpleado(String numeroEmpleado) {
+        return repository.findByNumeroEmpleado(numeroEmpleado)
+                .orElseThrow(() -> new RuntimeException("Profesor no encontrado"));
+    }
+
     // Actualizar profesor
     public void actualizarProfesor(Long id, Profesor p) {
         Profesor existente = obtenerPorId(id);

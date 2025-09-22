@@ -48,6 +48,16 @@ h1 {
     border-radius: 5px;
 }
 
+.card select {
+    display: block;
+    margin: 0.5rem auto;
+    padding: 0.5rem;
+    width: 84%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
 .card button {
     background-color: var(--pastel-purple);
     color: #fff;
@@ -63,4 +73,30 @@ h1 {
     background-color: var(--deep-purple);
 }
 
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
 
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+#error-message {
+    display: none;
+    text-align: center;
+    color: #5e35b1;
+    margin-top: 20px;
+    background: #f3e5f5;
+    border: 1px solid #e8e0ff;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 20px rgba(156, 136, 255, 0.1);
+}
+
+#error-message p {
+    margin: 0;
+    font-size: 1.1em;
+    font-weight: 500;
+}

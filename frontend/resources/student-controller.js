@@ -1,7 +1,7 @@
 const authService = 'http://localhost:8001';
 const studentService = 'http://localhost:8002';
 const schoolServicesService = 'http://localhost:8003/servicios-escolares/api';
-const teacherService = 'https://68c88b915d8d9f514735a4f0.mockapi.io';
+const teacherService = 'http://localhost:8005';
 
 function showSection(sectionId) {
     const sections = document.querySelectorAll('.content-section');
@@ -90,7 +90,7 @@ function loadGrades() {
     contentDiv.style.display = 'none';
     errorDiv.style.display = 'none';
 
-    fetch(`${teacherService}/grades`, {
+    fetch(`${teacherService}/my-grades`, {
         method: 'GET',
         headers: {
             'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
@@ -113,16 +113,16 @@ function loadGrades() {
 
             tbody.innerHTML = '';
 
-            if (data && data.length > 0) {
-                data.forEach(grade => {
+            if (data && data.grades.length > 0) {
+                data.grades.forEach(grade => {
                     const row = document.createElement('tr');
-                    const average = ((parseFloat(grade.partial1 || 0) + parseFloat(grade.partial2 || 0) + parseFloat(grade.partial3 || 0)) / 3).toFixed(1);
+                    const average = ((parseFloat(grade.partial_1 || 0) + parseFloat(grade.partial_2 || 0) + parseFloat(grade.partial_3 || 0)) / 3).toFixed(1);
 
                     row.innerHTML = `
-                            <td>${grade.subject}</td>
-                            <td>${grade.partial1 || '-'}</td>
-                            <td>${grade.partial2 || '-'}</td>
-                            <td>${grade.partial3 || '-'}</td>
+                            <td>${grade.group_name}</td>
+                            <td>${grade.partial_1 || '-'}</td>
+                            <td>${grade.partial_2 || '-'}</td>
+                            <td>${grade.partial_3 || '-'}</td>
                             <td><strong>${average}</strong></td>
                         `;
                     tbody.appendChild(row);

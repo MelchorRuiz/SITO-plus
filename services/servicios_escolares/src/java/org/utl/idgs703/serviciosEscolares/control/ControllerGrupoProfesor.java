@@ -2,6 +2,7 @@ package org.utl.idgs703.serviciosEscolares.control;
 
 import org.utl.idgs703.serviciosEscolares.db.ConexionMySQL;
 import org.utl.idgs703.serviciosEscolares.model.GrupoProfesor;
+import org.utl.idgs703.serviciosEscolares.model.Grupo;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,9 +72,11 @@ public class ControllerGrupoProfesor {
         return grupoProfesores;
     }
 
-    public List<GrupoProfesor> getGruposByProfesorId(String profesorId) throws SQLException {
-        List<GrupoProfesor> grupos = new ArrayList<>();
-        String query = "SELECT * FROM grupo_profesor WHERE profesor_id = ? AND estatus = 1";
+    public List<Grupo> getGruposByProfesorId(String profesorId) throws SQLException {
+        List<Grupo> grupos = new ArrayList<>();
+        String query = "SELECT g.* FROM grupo_profesor gp " +
+                       "JOIN grupo g ON gp.grupo_id = g.id_grupo " +
+                       "WHERE gp.profesor_id = ? AND gp.estatus = 1 AND g.estatus = 1";
 
         try (Connection conn = getConnection();
              PreparedStatement stmt = conn.prepareStatement(query)) {
@@ -82,14 +85,11 @@ public class ControllerGrupoProfesor {
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    GrupoProfesor gp = new GrupoProfesor(
-                            rs.getInt("id"),
-                            rs.getString("profesor_id"),
-                            rs.getString("profesor_nombre"),
-                            rs.getInt("grupo_id"),
-                            rs.getInt("estatus")
-                    );
-                    grupos.add(gp);
+                    Grupo g = new Grupo();
+                    g.setId_grupo(rs.getInt("id_grupo"));
+                    g.setNombre_grupo(rs.getString("nombre_grupo"));
+                    g.setEstatus(rs.getInt("estatus"));
+                    grupos.add(g);
                 }
             }
         }
